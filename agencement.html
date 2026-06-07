@@ -165,6 +165,26 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent)}
 .lb-cap{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:#fff;text-align:center;background:rgba(0,0,0,.65);padding:8px 16px;border-radius:6px;max-width:600px;width:90%}
 .lb-cap p{font-size:13px}.lb-cap a{font-size:11px;color:#63b3ed;word-break:break-all}
 
+/* Bouton d'aide « ? » + modale de suggestions */
+.help-btn{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:none;background:var(--accent);color:#fff;font-size:11px;font-weight:700;cursor:pointer;margin-left:6px;flex-shrink:0;line-height:1;vertical-align:middle}
+.help-btn:hover{background:var(--accent-h)}
+#help-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1100;display:none;align-items:center;justify-content:center;padding:24px}
+#help-modal.open{display:flex}
+.help-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-lg);max-width:560px;width:100%;max-height:80vh;overflow-y:auto;padding:20px 24px}
+.help-hdr{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}
+.help-hdr h3{flex:1;font-size:16px;font-weight:700;color:var(--text)}
+.help-intro{font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5}
+#help-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+#help-list li{font-size:13px;line-height:1.5;padding-left:22px;position:relative;color:var(--text)}
+#help-list li::before{content:'→';position:absolute;left:0;color:var(--accent);font-weight:700}
+
+/* Tags éditables des visuels */
+.img-tags-edit{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;align-items:center}
+.tag-chip{display:inline-flex;align-items:center;gap:2px;background:var(--accent);color:#fff;font-size:10px;padding:1px 4px 1px 6px;border-radius:10px;line-height:1.5}
+.tag-x{background:none;border:none;color:rgba(255,255,255,.85);cursor:pointer;font-size:12px;line-height:1;padding:0;margin-left:1px}
+.tag-x:hover{color:#fff}
+.tag-add{width:56px;font-size:10px;padding:1px 5px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text)}
+
 /* Mémo panel */
 #memo-panel{position:fixed;top:0;right:-490px;width:470px;height:100vh;background:var(--bg2);border-left:1px solid var(--border);box-shadow:-4px 0 20px rgba(0,0,0,.15);z-index:500;transition:right .3s ease;display:flex;flex-direction:column}
 #memo-panel.open{right:0}
@@ -237,6 +257,18 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
   <div class="lb-cap">
     <p id="lb-cap-txt"></p>
     <a id="lb-src-lnk" href="#" target="_blank" rel="noopener" style="display:none"></a>
+  </div>
+</div>
+
+<!-- Modale d'aide / suggestions -->
+<div id="help-modal">
+  <div class="help-box">
+    <div class="help-hdr">
+      <h3 id="help-title"></h3>
+      <button class="btn-icon" id="help-close">✕</button>
+    </div>
+    <p id="help-intro" class="help-intro"></p>
+    <ul id="help-list"></ul>
   </div>
 </div>
 
@@ -354,6 +386,162 @@ const MEMO_DATA = [
     'Panneaux standard : 2500 × 1250 mm (CP, MDF, mélaminé). Épaisseurs courantes : 18/19 mm (caissons), 15 mm (fonds/tiroirs légers), 22 mm (plans). Penser : sens du fil/décor, chants, quincaillerie (charnières Ø35, coulisses), jeu de montage. Modéliser à l\'épaisseur réelle → OpenCutList sort débit + calepinage + estimatif.',
   },
 ];
+
+// ============================================================
+// SUGGESTIONS D'AIDE (popups « ? ») — issues de la méthode du guide
+// ============================================================
+
+const HELP_DATA = {
+  usages:{
+    title:'💡 Usages & besoins — pistes de réflexion',
+    intro:"Avant toute géométrie, décris COMMENT tu vis la pièce. C'est le « pourquoi » qui guide tout le reste.",
+    items:[
+      'Activité principale + activités secondaires : cuisiner, manger, recevoir, télétravailler, lire, jouer, se détendre, dormir, se préparer…',
+      'Qui utilise la pièce ? Combien de personnes en même temps (usage courant vs maximum) ?',
+      'À quels moments ? Matin pressé, journée, soir, week-end, réceptions, vacances.',
+      "Déroule des scénarios concrets : « repas à 6 », « télétravail à deux écrans », « les enfants jouent pendant que je cuisine », « grand ménage »…",
+      'Que faut-il ranger ici précisément ? Estime les volumes (nb de livres, vaisselle, linge, jouets, dossiers…).',
+      "Accès fréquent (à portée de main) ou rare (haut / fond de meuble) ?",
+      "Évolutivité : l'usage peut-il changer dans 3-5 ans (bébé, ado, télétravail accru, départ d'un enfant) ?",
+      'Contraintes de vie : animaux, allergies, bruit, lumière du matin / soir.',
+    ],
+  },
+  needs:{
+    title:'💡 Prioriser les besoins',
+    intro:'Transforme les usages en besoins concrets et mesurables, puis hiérarchise-les.',
+    items:[
+      "Formule chaque besoin de façon mesurable : « plan de travail ≥ 1,2 m », « 6 couverts rangés », « penderie 1,5 m de tringle ».",
+      'INDISPENSABLE (rouge) : sans lui la pièce ne fonctionne pas.',
+      'SOUHAITÉ (ambre) : améliore nettement le confort, négociable.',
+      'BONUS (gris) : agréable si la place et le budget le permettent.',
+      "Pense aux besoins « invisibles » : prises bien placées, éclairage d'appoint, ventilation, acoustique, occultation.",
+      "Range par fréquence d'usage : quotidien à hauteur de main, saisonnier en hauteur.",
+      'Un besoin = une intention claire, vérifiable à l\'étape 6 (Validation).',
+    ],
+  },
+  ambiance:{
+    title:'💡 Ambiance & style',
+    intro:"Définis l'atmosphère recherchée : elle orientera matériaux, couleurs et lumière.",
+    items:[
+      'Mots-clés : lumineux, cosy, épuré, chaleureux, minimaliste, nature, industriel, scandinave, japandi…',
+      "Palette de couleurs : dominante, secondaire, touches d'accent.",
+      'Matériaux & textures : bois clair / foncé, métal, pierre, textile, rotin, verre.',
+      'Lumière : naturelle (orientation, fenêtres) + artificielle (général, fonctionnel, ambiance).',
+      "Niveau de « chaleur visuelle » : beaucoup de bois et textiles = chaleureux ; surfaces lisses = épuré.",
+      'Cohérence avec les pièces voisines (la cuisine est ouverte sur le séjour → harmoniser).',
+      "Entretien : surfaces faciles à nettoyer selon l'usage (cuisine, SDB, enfants).",
+    ],
+  },
+  constraints:{
+    title:'💡 Contraintes de la pièce (le non-négociable)',
+    intro:'Reporte tous les points fixes : ils délimitent les zones « interdites » ou imposées. Voir aussi CONTRAINTES.md.',
+    items:[
+      "Portes : position ET sens d'ouverture (la surface de débattement est une zone morte).",
+      "Fenêtres / porte-fenêtre : largeur, hauteur d'allège, volet roulant, accès terrasse.",
+      'Arrivées et évacuations d\'eau (figent cuisine, SDB, SDE, WC).',
+      'Élec : prises, interrupteurs, points lumineux, tableau électrique, attentes.',
+      'Radiateurs / sèche-serviettes : ne pas les bloquer par un meuble.',
+      'Gaine technique, VMC, extraction de la hotte.',
+      'Faux-plafond / soffite : hauteur réduite localement (vérifier la HSP sous soffite).',
+      'Murs porteurs (immobiles) vs simples cloisons (déplaçables).',
+      'Terrasse : charge admissible, garde-corps, exposition, vis-à-vis, points eau / élec extérieurs.',
+      'Rappel : cotes du plan = indicatives, à confirmer au relevé sur site avant fabrication.',
+    ],
+  },
+  zones:{
+    title:'💡 Zones & circulation (le squelette)',
+    intro:'Découpe la pièce en zones fonctionnelles et trace les flux, sans encore dessiner les meubles.',
+    items:[
+      'Liste les zones : cuisiner / manger / détendre / circuler / ranger / travailler.',
+      'Trace les flux entre portes, fenêtres et zones (qui va où, combien de fois par jour).',
+      'Respecte les largeurs de passage (voir Mémo) : passage principal 80 cm mini (90-100 confort).',
+      "Devant un meuble qu'on ouvre : 90 cm mini ; derrière une chaise occupée : 75 cm.",
+      'Ne JAMAIS sacrifier la circulation pour gagner du rangement.',
+      'Place les activités selon la lumière naturelle (bureau / lecture près d\'une fenêtre).',
+      'Zones calmes vs zones de passage : éloigne le coin détente des flux.',
+      "Cuisine : pense au triangle d'activité évier-cuisson-froid (somme des côtés 400-600 cm).",
+    ],
+  },
+  variants:{
+    title:'💡 Implantation — comparer des variantes',
+    intro:'Pose les meubles comme volumes simples et compare 2-3 partis avant de trancher.',
+    items:[
+      'Produis 2 à 3 variantes vraiment contrastées (pas de micro-variations).',
+      'Cuisine : linéaire / en L / en U / avec îlot / avec bar — ouverte ou semi-fermée.',
+      'Séjour : canapé face TV ou en angle ; table à manger côté cuisine ou côté fenêtre.',
+      'Chambre : lit centré ou contre un mur ; dressing fermé vs penderie ouverte.',
+      'Critères de comparaison : circulation, rangement obtenu, lumière, vue, coût, fabricabilité.',
+      'Note honnêtement + (avantages) et − (inconvénients) pour chaque variante.',
+      "Cale les meubles d'eau près des arrivées, le lit hors du courant de porte.",
+      'Coche « retenue » sur la variante choisie ; archive les autres en scènes SketchUp.',
+    ],
+  },
+  furniture:{
+    title:'💡 Mobilier sur mesure (la conception)',
+    intro:"Ne conçois le mobilier qu'une fois l'implantation choisie. Dimensions ergonomiques + fabricabilité.",
+    items:[
+      'Reprends les cotes ergonomiques du Mémo (hauteur plan 90-95, profondeur 60…).',
+      'Ajuste à ta morphologie (plan de travail ≈ hauteur du coude − 10 à 15 cm).',
+      'Indique les dimensions L×P×H en cm pour chaque meuble.',
+      'Modélise à l\'épaisseur RÉELLE des matériaux (18/19 mm caissons, 15 mm fonds, 22 mm plans).',
+      'Panneaux standard 2500×1250 mm : pense au calepinage et au sens du fil / décor.',
+      'Fabricabilité : assemblages, quincaillerie (charnières Ø35, coulisses), chants, jeu de montage.',
+      "Manutention R+7 : le meuble passe-t-il en ascenseur / escalier ? Prévois démontable si besoin.",
+      "Vérifie l'ouverture des portes / tiroirs et l'accès une fois le meuble en place.",
+      'Multifonction / gain de place pour les petites pièces (lit avec tiroirs, escamotable…).',
+    ],
+  },
+  validation:{
+    title:'💡 Validation (la relecture)',
+    intro:'Avant de figer une pièce, repasse la checklist. Coche seulement ce qui est réellement vérifié.',
+    items:[
+      'Tous les besoins « indispensables » sont-ils réellement couverts ?',
+      'La circulation respecte-t-elle partout les minis du Mémo ?',
+      'Aucune collision meuble ↔ porte / fenêtre / radiateur (débattements inclus) ?',
+      "Tiroirs et portes s'ouvrent sans gêne, même meuble voisin ouvert ?",
+      "Le rangement obtenu couvre-t-il les volumes listés à l'étape 1 ?",
+      'Cohérence avec les contraintes techniques (eau, élec, hauteur sous plafond) ?',
+      'Fabricable ET transportable (manutention R+7) ?',
+      'Doute ? Note-le dans « Notes / décisions » et ajoute une vérif au relevé sur site.',
+    ],
+  },
+  questions:{
+    title:'💡 Répondre aux questions de la fiche',
+    intro:"Ces questions ciblent les arbitrages clés de la pièce. Une réponse claire débloque l'implantation.",
+    items:[
+      'Réponds franchement, quitte à mettre « à décider » + les options envisagées.',
+      'Pour les couchages / tables, pars du nombre réel d\'utilisateurs.',
+      'Si tu hésites entre deux partis, garde-les comme variantes (étape 4).',
+      'Chiffre quand tu peux : nb de places, longueur de plan, nb de couchages.',
+      'Une réponse peut créer un nouveau besoin → reviens l\'ajouter à l\'étape 1.',
+      "Les réponses alimentent l'export « décisions » lu par l'IA : sois explicite.",
+    ],
+  },
+  notes:{
+    title:'💡 Notes / décisions',
+    intro:'Garde la trace du « pourquoi » de tes choix et des points encore ouverts.',
+    items:[
+      'Note les décisions arrêtées ET leur raison (utile dans 6 mois).',
+      'Liste les questions ouvertes et ce qui reste à vérifier sur site.',
+      "Consigne les arbitrages (ce que tu as écarté et pourquoi).",
+      'Idées « à creuser » qui ne rentrent pas encore dans une variante.',
+      'Références : liens produits, fourchettes de prix, contraintes fournisseur.',
+      'Points à confirmer au relevé : cotes, positions eau / élec, hauteur sous plafond.',
+    ],
+  },
+  images:{
+    title:'💡 Visuels d\'inspiration',
+    intro:'Collecte des références et range-les par thème (tags) pour nourrir le parti pris.',
+    items:[
+      'Ajoute via glisser-déposer, Ctrl+V (capture web) ou une URL.',
+      "Légende chaque image (ce que tu retiens : « façade sans poignée », « bois clair »).",
+      'Tague par thème pour filtrer ensuite : matériau (bois, métal), couleur, meuble (lit, bureau, dressing), ambiance (épuré, cosy).',
+      'Conserve la source (lien) pour retrouver le produit ou le crédit.',
+      'Varie les angles : ambiance générale, détails de rangement, solutions techniques.',
+      'Confronte tes visuels à tes besoins : cette inspi est-elle compatible avec tes contraintes ?',
+    ],
+  },
+};
 
 // ============================================================
 // INDEXEDDB
@@ -555,22 +743,22 @@ function renderRoom(rid){
     <button class="btn btn-ghost" onclick="exportMdRoom()">📄 Exporter cette pièce</button>
   </div>
   ${acc(1,'Usages &amp; besoins',s1(room))}
-  ${acc(2,'Contraintes',s2(room))}
-  ${acc(3,'Zones &amp; circulation',s3(room))}
-  ${acc(4,'Implantation — variantes',s4(room))}
-  ${acc(5,'Mobilier sur mesure',s5(room))}
-  ${acc(6,'Validation',s6(room))}
+  ${acc(2,'Contraintes',s2(room),'constraints')}
+  ${acc(3,'Zones &amp; circulation',s3(room),'zones')}
+  ${acc(4,'Implantation — variantes',s4(room),'variants')}
+  ${acc(5,'Mobilier sur mesure',s5(room),'furniture')}
+  ${acc(6,'Validation',s6(room),'validation')}
   <div class="acc open" id="acc-q">
     <div class="acc-hdr" onclick="togAcc('acc-q')">
       <div class="step-num" style="background:var(--text3)">?</div>
-      <h3>Questions de la fiche</h3><span class="acc-arrow">▼</span>
+      <h3>Questions de la fiche</h3>${helpBtn('questions')}<span class="acc-arrow">▼</span>
     </div>
     <div class="acc-body">${sQ(room,qs)}</div>
   </div>
   <div class="acc" id="acc-notes">
     <div class="acc-hdr" onclick="togAcc('acc-notes')">
       <div class="step-num" style="background:var(--text3)">📝</div>
-      <h3>Notes / décisions</h3><span class="acc-arrow">▼</span>
+      <h3>Notes / décisions</h3>${helpBtn('notes')}<span class="acc-arrow">▼</span>
     </div>
     <div class="acc-body">
       <textarea id="inp-notes" rows="5" placeholder="Décisions, idées, références…">${esc(room.notes)}</textarea>
@@ -579,7 +767,7 @@ function renderRoom(rid){
   <div class="acc open" id="acc-img">
     <div class="acc-hdr" onclick="togAcc('acc-img')">
       <div class="step-num" style="background:var(--text3)">🖼</div>
-      <h3>Visuels d'inspiration (${(room.images||[]).length})</h3><span class="acc-arrow">▼</span>
+      <h3>Visuels d'inspiration (${(room.images||[]).length})</h3>${helpBtn('images')}<span class="acc-arrow">▼</span>
     </div>
     <div class="acc-body">${sImg()}</div>
   </div>`;
@@ -587,26 +775,31 @@ function renderRoom(rid){
   loadImgs(room);
 }
 
-function acc(n,title,body){
+function acc(n,title,body,helpId){
   return `<div class="acc" id="acc-s${n}">
     <div class="acc-hdr" onclick="togAcc('acc-s${n}')">
-      <div class="step-num">${n}</div><h3>${title}</h3><span class="acc-arrow">▼</span>
+      <div class="step-num">${n}</div><h3>${title}</h3>${helpId?helpBtn(helpId):''}<span class="acc-arrow">▼</span>
     </div>
     <div class="acc-body">${body}</div>
   </div>`;
+}
+
+// Bouton « ? » qui ouvre la modale de suggestions ; stopPropagation pour ne pas (dé)plier l'accordéon
+function helpBtn(id){
+  return `<button class="help-btn" title="Suggestions pour t'aider" onclick="event.stopPropagation();showHelp('${id}')">?</button>`;
 }
 
 function togAcc(id){document.getElementById(id)?.classList.toggle('open')}
 
 function s1(room){
   const needs=room.needs||[];
-  return `<div class="fg"><label class="fl">Activités, qui, quand — comment on vit la pièce</label>
+  return `<div class="fg"><label class="fl">Activités, qui, quand — comment on vit la pièce${helpBtn('usages')}</label>
     <textarea id="inp-usages" rows="3" placeholder="Activités, scénarios, moments de vie…">${esc(room.usages)}</textarea></div>
-  <div class="fg"><label class="fl">Besoins priorisés</label>
+  <div class="fg"><label class="fl">Besoins priorisés${helpBtn('needs')}</label>
     <div class="needs-list" id="needs-list">${needs.map(n=>niHtml(n)).join('')}</div>
     <button class="btn-add" onclick="addNeed()">+ Ajouter un besoin</button>
   </div>
-  <div class="fg"><label class="fl">Ambiance voulue</label>
+  <div class="fg"><label class="fl">Ambiance voulue${helpBtn('ambiance')}</label>
     <textarea id="inp-ambiance" rows="2" placeholder="Lumineux, cosy, épuré, chaleureux…">${esc(room.ambiance)}</textarea></div>`;
 }
 
@@ -753,13 +946,13 @@ async function loadImgs(room){
       <button class="img-del" onclick="event.stopPropagation();delImg('${img.id}')">×</button>
       <div class="img-info">
         <input class="img-cap-edit" type="text" value="${esc(img.caption)}" placeholder="Légende…" data-iid="${img.id}">
-        ${img.tags&&img.tags.length?`<div class="img-tags">${img.tags.map(esc).join(', ')}</div>`:''}
+        <div class="img-tags-edit" data-iid="${img.id}">${tagsHtml(img)}</div>
       </div>
     </div>`).join('');
   // Événements (avant le chargement async)
   grid.querySelectorAll('.img-card').forEach(card=>{
     card.addEventListener('click',e=>{
-      if(e.target.closest('button')||e.target.tagName==='INPUT') return;
+      if(e.target.closest('button')||e.target.tagName==='INPUT'||e.target.closest('.img-tags-edit')) return;
       openLb(parseInt(card.dataset.idx));
     });
   });
@@ -770,6 +963,8 @@ async function loadImgs(room){
       if(img){img.caption=inp.value;save();}
     });
   });
+  // Câblage des tags (chips + saisie)
+  grid.querySelectorAll('.img-tags-edit').forEach(wireTagContainer);
   // Chargement des blobs IndexedDB
   for(let i=0;i<imgs.length;i++){
     const img=imgs[i];
@@ -836,6 +1031,51 @@ async function delImg(iid){
   save();loadImgs(room);
 }
 
+// ── Tags des visuels ──────────────────────────────────────────
+function tagsHtml(img){
+  const tags=img.tags||[];
+  return tags.map(t=>`<span class="tag-chip">${esc(t)}<button class="tag-x" title="Retirer" data-iid="${img.id}" data-tag="${esc(t)}">×</button></span>`).join('')
+    +`<input class="tag-add" type="text" placeholder="+ tag" data-iid="${img.id}">`;
+}
+
+function wireTagContainer(cont){
+  const add=cont.querySelector('.tag-add');
+  if(add){
+    add.addEventListener('keydown',e=>{
+      if(e.key==='Enter'||e.key===','){e.preventDefault();addImgTags(add.dataset.iid,add.value);add.value='';}
+    });
+    add.addEventListener('blur',()=>{if(add.value.trim()){addImgTags(add.dataset.iid,add.value);add.value='';}});
+  }
+  cont.querySelectorAll('.tag-x').forEach(btn=>{
+    btn.addEventListener('click',e=>{e.stopPropagation();removeImgTag(btn.dataset.iid,btn.dataset.tag);});
+  });
+}
+
+function addImgTags(iid,raw){
+  const img=state.rooms[curRoom].images.find(i=>i.id===iid);if(!img)return;
+  if(!img.tags) img.tags=[];
+  raw.split(',').map(s=>s.trim()).filter(Boolean).forEach(t=>{
+    if(!img.tags.includes(t)) img.tags.push(t);
+  });
+  save();refreshTags(iid,true);
+}
+
+function removeImgTag(iid,tag){
+  const img=state.rooms[curRoom].images.find(i=>i.id===iid);if(!img||!img.tags)return;
+  img.tags=img.tags.filter(t=>t!==tag);
+  save();refreshTags(iid,false);
+}
+
+// Reconstruit uniquement le conteneur de tags d'une image (évite de recharger les blobs)
+function refreshTags(iid,focus){
+  const cont=document.querySelector(`.img-tags-edit[data-iid="${iid}"]`);
+  const img=state.rooms[curRoom].images.find(i=>i.id===iid);
+  if(!cont||!img) return;
+  cont.innerHTML=tagsHtml(img);
+  wireTagContainer(cont);
+  if(focus) cont.querySelector('.tag-add')?.focus();
+}
+
 // ============================================================
 // LIGHTBOX
 // ============================================================
@@ -855,6 +1095,22 @@ document.getElementById('lb-close').addEventListener('click',closeLb);
 document.getElementById('lb-prev').addEventListener('click',()=>{lbIdx=(lbIdx-1+lbImgs.length)%lbImgs.length;showLb();});
 document.getElementById('lb-next').addEventListener('click',()=>{lbIdx=(lbIdx+1)%lbImgs.length;showLb();});
 document.getElementById('lightbox').addEventListener('click',e=>{if(e.target===document.getElementById('lightbox'))closeLb();});
+
+// ============================================================
+// MODALE D'AIDE (suggestions « ? »)
+// ============================================================
+
+function showHelp(id){
+  const h=HELP_DATA[id];if(!h)return;
+  document.getElementById('help-title').textContent=h.title;
+  const intro=document.getElementById('help-intro');
+  intro.textContent=h.intro||'';intro.style.display=h.intro?'':'none';
+  document.getElementById('help-list').innerHTML=h.items.map(it=>`<li>${esc(it)}</li>`).join('');
+  document.getElementById('help-modal').classList.add('open');
+}
+function closeHelp(){document.getElementById('help-modal').classList.remove('open');}
+document.getElementById('help-close').addEventListener('click',closeHelp);
+document.getElementById('help-modal').addEventListener('click',e=>{if(e.target.id==='help-modal')closeHelp();});
 
 // ============================================================
 // BESOINS
@@ -1195,7 +1451,7 @@ document.addEventListener('click',e=>{if(!e.target.closest('#dd-export'))ddClose
 
 document.addEventListener('keydown',e=>{
   const lb=document.getElementById('lightbox').classList.contains('open');
-  if(e.key==='Escape'){closeLb();document.getElementById('memo-panel').classList.remove('open');}
+  if(e.key==='Escape'){closeLb();closeHelp();document.getElementById('memo-panel').classList.remove('open');}
   if(lb&&e.key==='ArrowLeft'){lbIdx=(lbIdx-1+lbImgs.length)%lbImgs.length;showLb();}
   if(lb&&e.key==='ArrowRight'){lbIdx=(lbIdx+1)%lbImgs.length;showLb();}
 });
