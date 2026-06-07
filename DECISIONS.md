@@ -77,3 +77,25 @@ Aucune cote de fabrication de mobilier n'est figée avant un **relevé laser sur
 
 ### Raison
 Le plan de vente est explicitement indicatif (NOTA) ; un écart de 2 cm ruine un meuble encastré.
+
+---
+
+## 2026-06-07 — Découpage cuisine / séjour pour l'agencement
+
+### Décision
+Traiter la **cuisine** comme une zone distincte de **7,5 m²** (zone carrelée intégrée au séjour),
+et le **séjour net** (hors cuisine) comme **≈ 22,5 m²**.
+
+### Contexte
+Le plan de vente compte cuisine + séjour en un seul lot (**Séjour 29,94 m²**, cuisine non chiffrée
+car ouverte). Pour la méthode d'agencement, les deux zones ont des usages et contraintes différents
+→ besoin de les dissocier.
+
+### Raison
+Surface cuisine **mesurée manuellement dans SketchUp** (zone carrelée) = 7,5 m².
+Reste séjour = 29,94 − 7,5 ≈ 22,44, arrondi à **22,5 m²**.
+
+### Conséquences
+- Valeurs reportées dans `agencement.html` (seed) : cuisine 7,5 · séjour 22,5.
+- La surface officielle du plan (29,94 m² séjour englobant la cuisine) reste la référence cadastrale ;
+  22,5 / 7,5 sont des valeurs **de travail**, à confirmer au relevé sur site.

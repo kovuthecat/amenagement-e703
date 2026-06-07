@@ -48,6 +48,10 @@ Amenagement appartement/
 T5, 106,62 m² + terrasse 36,56 m². Séjour 29,94 · Ch4 15,09 · Ch1 15,01 · Ch2 12,02 · Ch3 10,67 ·
 SDE 5,97 · Entrée 5,71 · SDB 5,37 · DGT 4,80 · WC 2,04 m².
 
+> **Découpage de travail cuisine/séjour** (cf. DECISIONS 2026-06-07) : le lot « Séjour 29,94 m² »
+> du plan englobe la cuisine ouverte. Pour l'agencement on dissocie **cuisine ≈ 7,5 m²** (zone
+> carrelée mesurée dans SketchUp) et **séjour net ≈ 22,5 m²**. Valeurs de travail, à confirmer au relevé.
+
 ## Règles locales
 
 - Toute fabrication attend le **relevé sur site** (cf. DECISIONS).
