@@ -50,8 +50,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 #sb-head{padding:16px;border-bottom:1px solid rgba(255,255,255,.1)}
 #sb-head h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;opacity:.7}
 #sb-head p{font-size:11px;opacity:.5;margin-top:2px}
-#btn-dash{display:block;width:calc(100% - 16px);margin:8px;padding:8px 12px;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--sb-text);font-size:13px;cursor:pointer;text-align:left}
-#btn-dash:hover,#btn-dash.active{background:var(--sb-active);border-color:transparent}
+#btn-dash,#btn-plan-global{display:block;width:calc(100% - 16px);margin:6px 8px;padding:8px 12px;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--sb-text);font-size:13px;cursor:pointer;text-align:left}
+#btn-plan-global{margin-top:0}
+#btn-dash:hover,#btn-dash.active,#btn-plan-global:hover,#btn-plan-global.active{background:var(--sb-active);border-color:transparent}
 #room-list{flex:1;padding:8px 0}
 .ri{padding:8px 16px;cursor:pointer;transition:background .15s;border-left:3px solid transparent}
 .ri:hover{background:var(--sb-hover)}.ri.active{background:rgba(91,127,166,.2);border-left-color:var(--sb-active)}
@@ -189,6 +190,43 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent)}
 .tag-x:hover{color:#fff}
 .tag-add{width:56px;font-size:10px;padding:1px 5px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text)}
 
+/* B — ergonomie inline */
+.ergo-inline{margin-top:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg3);padding:0 12px}
+.ergo-inline summary{cursor:pointer;padding:8px 0;font-size:12px;font-weight:600;color:var(--accent);user-select:none}
+.ergo-sec{margin:6px 0 12px}
+.ergo-sec strong{display:block;font-size:12px;margin-bottom:4px;color:var(--text2)}
+
+/* D — comparateur de variantes */
+.var-total{font-size:12px;font-weight:700;color:var(--accent);background:rgba(91,127,166,.12);padding:2px 8px;border-radius:10px;white-space:nowrap}
+.var-best{font-size:13px;background:rgba(72,187,120,.1);border:1px solid #48bb78;border-radius:8px;padding:8px 12px;margin-bottom:10px}
+.var-scores{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border)}
+.vscore{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)}
+.vscore select{padding:2px 4px;border:1px solid var(--border);border-radius:5px;background:var(--bg3);color:var(--text);font-size:12px}
+
+/* C — relevé sur site */
+.survey-item{cursor:default}
+.sv-lbl{flex:1;border:none;background:transparent;font-size:13px;color:var(--text)}
+.sv-lbl:focus{outline:none}
+
+/* E/F — plans */
+.plan-panel{border:1px solid var(--border);border-radius:10px;background:var(--bg2);padding:12px;margin-bottom:16px}
+.plan-panel-hdr{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.plan-img{display:block;max-width:100%;max-height:340px;margin:0 auto;border-radius:6px;cursor:zoom-in;border:1px solid var(--border)}
+.plan-img-lg{max-height:70vh}
+.btn-sm{padding:3px 8px;font-size:12px}
+
+/* G — assistant Pinterest */
+#pin-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1100;display:none;align-items:center;justify-content:center;padding:24px}
+#pin-modal.open{display:flex}
+.pin-box{max-width:620px}
+#pin-query{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--text);font-size:14px;margin-bottom:4px}
+.pin-bank{margin-bottom:12px}
+.pin-bank h4{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.pin-chips{display:flex;flex-wrap:wrap;gap:6px}
+.pin-chip{border:1px solid var(--border);background:var(--bg3);color:var(--text);border-radius:14px;padding:4px 10px;font-size:12px;cursor:pointer}
+.pin-chip:hover{border-color:var(--accent)}
+.pin-chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+
 /* Mémo panel */
 #memo-panel{position:fixed;top:0;right:-490px;width:470px;height:100vh;background:var(--bg2);border-left:1px solid var(--border);box-shadow:-4px 0 20px rgba(0,0,0,.15);z-index:500;transition:right .3s ease;display:flex;flex-direction:column}
 #memo-panel.open{right:0}
@@ -245,6 +283,7 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
     <p>T5 · 106,62 m² + terrasse</p>
   </div>
   <button id="btn-dash">📊 Tableau de bord</button>
+  <button id="btn-plan-global">🗺 Plan global</button>
   <div id="room-list"></div>
 </div>
 
@@ -273,6 +312,24 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
     </div>
     <p id="help-intro" class="help-intro"></p>
     <ul id="help-list"></ul>
+  </div>
+</div>
+
+<!-- Modale assistant mots-clés Pinterest -->
+<div id="pin-modal">
+  <div class="help-box pin-box">
+    <div class="help-hdr">
+      <h3>🔍 Assistant mots-clés Pinterest</h3>
+      <button class="btn-icon" id="pin-close">✕</button>
+    </div>
+    <p class="help-intro">Clique des mots pour composer ta recherche, puis copie-la ou ouvre Pinterest. Astuce : essaie aussi en anglais, souvent plus de résultats.</p>
+    <input id="pin-query" type="text" placeholder="Ta recherche…">
+    <div class="row mt2" style="margin-bottom:12px">
+      <button class="btn btn-primary" id="pin-copy">Copier</button>
+      <button class="btn btn-ghost" id="pin-open">Ouvrir Pinterest ↗</button>
+      <button class="btn btn-ghost" id="pin-clear">Vider</button>
+    </div>
+    <div id="pin-banks"></div>
   </div>
 </div>
 
@@ -548,6 +605,63 @@ const HELP_DATA = {
 };
 
 // ============================================================
+// DONNÉES POUR LES NOUVEAUX OUTILS
+// ============================================================
+
+// C — points de relevé sur site par défaut (par pièce)
+const SURVEY_SEED = [
+  'Hauteur sous plafond (et sous faux-plafond)',
+  'Cotes réelles des murs au laser',
+  "Positions arrivées / évacuations d'eau",
+  'Points élec (prises, attentes, tableau)',
+  'Radiateurs / sèche-serviette',
+  'Gaine technique / VMC / extraction',
+  'Sens et débattement des portes',
+];
+
+// D — critères de notation des variantes (note 0-5, « plus = mieux » ; coût : 5 = le plus économique)
+const VAR_CRITERIA = [
+  {id:'circ',label:'Circulation'},
+  {id:'rang',label:'Rangement'},
+  {id:'lum', label:'Lumière'},
+  {id:'cout',label:'Coût'},
+  {id:'fab', label:'Fabricabilité'},
+];
+
+// B — sections du Mémo ergonomie pertinentes par pièce (étape Mobilier)
+const ROOM_ERGO = {
+  cuisine:['Cuisine','Repas'],
+  entree:['Entrée & rangement'],
+  degagement:['Entrée & rangement'],
+  sejour:['Salon','Repas'],
+  chambre1:['Chambre'],chambre2:['Chambre'],chambre3:['Chambre'],chambre4:['Chambre'],
+  sdb:['Salle de bain / SDE / WC'],sde:['Salle de bain / SDE / WC'],wc:['Salle de bain / SDE / WC'],
+  terrasse:['Repas'],
+};
+
+// G — banques de mots-clés pour l'assistant Pinterest
+const PIN_BANKS = {
+  styles:['scandinave','japandi','minimaliste','contemporain','industriel','bohème','mid-century','wabi-sabi','rustique chic','années 70','méditerranéen'],
+  materiaux:['chêne clair','noyer','frêne','bois clair','cannage','rotin','laiton','noir mat','acier','terrazzo','travertin','marbre','lin','béton ciré'],
+  couleurs:['tons neutres','beige','blanc cassé','vert sauge','terracotta','bleu nuit','ocre','gris perle','bois naturel'],
+  formats:['petit espace','sur-mesure','gain de place','rangement intégré','DIY','sous pente','toute hauteur','modulable','plan / élévation'],
+};
+const PIN_ELEMENTS = {
+  cuisine:['cuisine ouverte','îlot central','bar / snack','crédence','colonne four','meuble bas','verrière'],
+  entree:["meuble d'entrée",'banc + rangement chaussures','penderie','vide-poche','patères','miroir entrée'],
+  degagement:['placard sur-mesure','rangement couloir','buanderie intégrée','bibliothèque couloir'],
+  sejour:['meuble TV','bibliothèque murale','banc sous fenêtre','table à manger','buffet','coin bureau','claustra'],
+  chambre1:['tête de lit','dressing','chevet suspendu','rangement sous lit','bureau chambre'],
+  chambre2:['lit avec tiroirs','penderie compacte','étagères','bureau'],
+  chambre3:['lit gain de place','lit escamotable','bureau escamotable','rangement hauteur'],
+  chambre4:['lit enfant','lit mezzanine','bureau enfant','rangement jouets','lits gigognes'],
+  sdb:['meuble vasque','colonne rangement','niche douche','baignoire îlot','vasque double'],
+  sde:['meuble vasque',"douche à l'italienne",'rangement buanderie','lave-linge encastré'],
+  wc:['wc suspendu','rangement wc','lave-mains compact','habillage wc'],
+  terrasse:['salon de jardin','coin repas extérieur','jardinières','brise-vue','pergola','banc coffre'],
+};
+
+// ============================================================
 // INDEXEDDB
 // ============================================================
 
@@ -575,10 +689,12 @@ function dbDel(store,key){return new Promise((res,rej)=>{const t=db.transaction(
 
 let state = null;
 let curRoom = null;   // id pièce courante
-let curView = 'dashboard'; // 'dashboard' | 'room'
+let curView = 'dashboard'; // 'dashboard' | 'room' | 'planglobal'
 let saveTid = null;
 let lbImgs = [];  // [{src,caption,source}] pour la lightbox
 let lbIdx = 0;
+
+function mkSurvey(){return SURVEY_SEED.map(label=>({id:uid(),label,done:false}));}
 
 function mkRoom(r){
   const qs=SEED_QUESTIONS[r.id]||[];
@@ -586,13 +702,29 @@ function mkRoom(r){
   const validation={};VAL_ITEMS.forEach(v=>{validation[v.id]=false;});
   return {id:r.id,name:r.name,area:r.area,order:r.order,
     usages:'',needs:[],ambiance:'',constraints:'',zones:'',
-    variants:[],furniture:[],validation,answers,notes:'',images:[]};
+    variants:[],furniture:[],validation,answers,notes:'',images:[],
+    survey:mkSurvey(),surveyNote:'',plan:null};
 }
 
 function mkSeedState(){
   const rooms={};
   SEED_ROOMS.forEach(r=>{rooms[r.id]=mkRoom(r);});
-  return {meta:{appName:'Agencement E703',version:1,lastModified:new Date().toISOString()},rooms};
+  return {meta:{appName:'Agencement E703',version:1,lastModified:new Date().toISOString(),planGlobalRef:null},rooms};
+}
+
+// Migration : complète les champs absents des états sauvegardés avant l'ajout des nouveaux outils
+function migrate(s){
+  if(!s.meta) s.meta={appName:'Agencement E703',version:1,lastModified:new Date().toISOString()};
+  if(!('planGlobalRef' in s.meta)) s.meta.planGlobalRef=null;
+  for(const rid in s.rooms){
+    const r=s.rooms[rid];
+    if(!Array.isArray(r.survey)) r.survey=mkSurvey();
+    if(typeof r.surveyNote!=='string') r.surveyNote='';
+    if(!('plan' in r)) r.plan=null;
+    (r.variants||[]).forEach(v=>{ if(!v.scores) v.scores={}; });
+    (r.images||[]).forEach(im=>{ if(!Array.isArray(im.tags)) im.tags=[]; });
+  }
+  return s;
 }
 
 // ============================================================
@@ -650,11 +782,11 @@ function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 const PRIO_LABELS={indispensable:'INDISPENSABLE',souhaite:'SOUHAITÉ',bonus:'BONUS'};
 function prioCycle(p){const c=['indispensable','souhaite','bonus'];return c[(c.indexOf(p)+1)%3]}
 
-function resizeImg(file){
+function resizeImg(file,M=1600){
   return new Promise(res=>{
     const img=new Image(),url=URL.createObjectURL(file);
     img.onload=()=>{
-      let{width:w,height:h}=img,M=1600;
+      let{width:w,height:h}=img;
       if(w>M||h>M){if(w>h){h=Math.round(h*M/w);w=M;}else{w=Math.round(w*M/h);h=M;}}
       const c=document.createElement('canvas');c.width=w;c.height=h;
       c.getContext('2d').drawImage(img,0,0,w,h);
@@ -683,6 +815,7 @@ function renderSidebar(){
     </div>`;
   }).join('');
   document.getElementById('btn-dash').classList.toggle('active',curView==='dashboard');
+  document.getElementById('btn-plan-global').classList.toggle('active',curView==='planglobal');
 }
 
 // ============================================================
@@ -699,8 +832,9 @@ function renderDash(){
     <div class="stat-card"><div class="val">${done}</div><div class="lbl">Terminées (100%)</div></div>
     <div class="stat-card"><div class="val">${imgs}</div><div class="lbl">Visuels total</div></div>
   </div>
-  <div class="row mt2" style="margin-bottom:20px">
+  <div class="row mt2" style="margin-bottom:20px;flex-wrap:wrap">
     <button class="btn btn-primary" onclick="exportMdAll()">📄 Tout exporter (Markdown)</button>
+    <button class="btn btn-ghost" onclick="exportSurvey()">📋 Relevé sur site (Markdown)</button>
     <button class="btn btn-ghost" onclick="exportBackup()">💾 Backup JSON</button>
   </div>
   <div class="room-grid">`;
@@ -746,6 +880,7 @@ function renderRoom(rid){
     </div>
     <button class="btn btn-ghost" onclick="exportMdRoom()">📄 Exporter cette pièce</button>
   </div>
+  ${planPanelHtml(room)}
   ${acc(1,'Usages &amp; besoins',s1(room))}
   ${acc(2,'Contraintes',s2(room),'constraints')}
   ${acc(3,'Zones &amp; circulation',s3(room),'zones')}
@@ -768,6 +903,13 @@ function renderRoom(rid){
       <textarea id="inp-notes" rows="5" placeholder="Décisions, idées, références…">${esc(room.notes)}</textarea>
     </div>
   </div>
+  <div class="acc" id="acc-survey">
+    <div class="acc-hdr" onclick="togAcc('acc-survey')">
+      <div class="step-num" style="background:var(--text3)">🔎</div>
+      <h3>Relevé sur site (${(room.survey||[]).filter(s=>s.done).length}/${(room.survey||[]).length})</h3><span class="acc-arrow">▼</span>
+    </div>
+    <div class="acc-body">${sSurvey(room)}</div>
+  </div>
   <div class="acc open" id="acc-img">
     <div class="acc-hdr" onclick="togAcc('acc-img')">
       <div class="step-num" style="background:var(--text3)">🖼</div>
@@ -777,6 +919,7 @@ function renderRoom(rid){
   </div>`;
   bindRoom(room);
   loadImgs(room);
+  wirePlanPanel();loadRoomPlan(room);
 }
 
 function acc(n,title,body,helpId){
@@ -822,19 +965,44 @@ function s2(room){
 
 function s3(room){
   return `<div class="fg"><label class="fl">Zones fonctionnelles &amp; flux de circulation</label>
-    <textarea id="inp-zones" rows="5" placeholder="Ex : zone cuisiner / zone manger / zone détente, flux porte → terrasse…">${esc(room.zones)}</textarea></div>`;
+    <textarea id="inp-zones" rows="5" placeholder="Ex : zone cuisiner / zone manger / zone détente, flux porte → terrasse…">${esc(room.zones)}</textarea></div>
+    ${ergoInline(['Circulation'])}`;
 }
 
-function s4(room){
+// B — tableaux de cotes pertinents, repliés sous l'étape (données = Mémo ergonomie)
+function ergoInline(titles){
+  if(!titles||!titles.length) return '';
+  const secs=MEMO_DATA.filter(s=>titles.includes(s.title)&&s.cols);
+  if(!secs.length) return '';
+  const body=secs.map(sec=>`<div class="ergo-sec"><strong>${esc(sec.title)}</strong>
+    <table class="memo-tbl"><thead><tr>${sec.cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead>
+    <tbody>${sec.rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`).join('');
+  return `<details class="ergo-inline"><summary>📐 Cotes utiles ici</summary>${body}</details>`;
+}
+
+// D — comparateur de variantes
+function varTotal(v){return VAR_CRITERIA.reduce((a,c)=>a+(Number(v.scores&&v.scores[c.id])||0),0);}
+function bestVariant(vars){
+  let best=null,bt=-1;
+  vars.forEach(v=>{const t=varTotal(v);if(t>bt){bt=t;best=v;}});
+  return bt>0?best:null;
+}
+function s4(room){return `<div id="step4-wrap">${s4inner(room)}</div>`;}
+function s4inner(room){
   const vars=room.variants||[];
-  return `<div id="vars-list">${vars.map(v=>varHtml(v)).join('')}</div>
-    <button class="btn-add" onclick="addVar()">+ Ajouter une variante</button>`;
+  const best=vars.length>=2?bestVariant(vars):null;
+  const hint=best?`<div class="var-best">🏆 Meilleur score : <strong>${esc(best.name)}</strong> (${varTotal(best)}/25)</div>`:'';
+  return `${hint}<div id="vars-list">${vars.map(v=>varHtml(v)).join('')}</div>
+    <button class="btn-add" onclick="addVar()">+ Ajouter une variante</button>
+    <p class="text-sm mt2">Note chaque critère 0-5 (Coût : 5 = le plus économique). Le score est une aide — coche « Retenue » pour ton choix final.</p>`;
 }
 
 function varHtml(v){
+  const scores=v.scores||{};
   return `<div class="var-card${v.chosen?' chosen':''}" data-vid="${v.id}">
     <div class="var-hdr">
       <input type="text" class="v-name" value="${esc(v.name)}" placeholder="Nom de la variante">
+      <span class="var-total" title="Score total">${varTotal(v)}/25</span>
       <label class="chosen-cb-wrap"><input type="checkbox" class="v-chosen" ${v.chosen?'checked':''}> Retenue</label>
       ${v.chosen?'<span class="chosen-lbl">✓ Retenue</span>':''}
       <button class="btn-del" onclick="delVar('${v.id}')">×</button>
@@ -844,13 +1012,52 @@ function varHtml(v){
       <div class="fg"><label class="fl">+ Avantages</label><textarea class="v-pros" rows="2">${esc(v.pros)}</textarea></div>
       <div class="fg"><label class="fl">− Inconvénients</label><textarea class="v-cons" rows="2">${esc(v.cons)}</textarea></div>
     </div>
+    <div class="var-scores">${VAR_CRITERIA.map(c=>`<label class="vscore"><span>${esc(c.label)}</span>
+      <select class="v-score" data-crit="${c.id}">${[0,1,2,3,4,5].map(n=>`<option value="${n}" ${(Number(scores[c.id])||0)===n?'selected':''}>${n}</option>`).join('')}</select>
+    </label>`).join('')}</div>
   </div>`;
 }
+
+function renderStep4(){const w=document.getElementById('step4-wrap');if(w)w.innerHTML=s4inner(state.rooms[curRoom]);}
 
 function s5(room){
   const f=room.furniture||[];
   return `<div id="furn-list">${f.map(fi=>furnHtml(fi)).join('')}</div>
-    <button class="btn-add" onclick="addFurn()">+ Ajouter un meuble</button>`;
+    <button class="btn-add" onclick="addFurn()">+ Ajouter un meuble</button>
+    ${ergoInline(ROOM_ERGO[room.id]||[])}`;
+}
+
+// C — relevé sur site
+function sSurvey(room){
+  const items=room.survey||[];
+  return `<p class="text-sm" style="margin-bottom:8px">Points à vérifier au relevé sur site (avant toute fabrication). Coché = relevé.</p>
+  <div class="val-list" id="survey-list">${items.map(it=>surveyItemHtml(it)).join('')}</div>
+  <button class="btn-add" onclick="addSurvey()">+ Ajouter un point</button>
+  <div class="fg mt3"><label class="fl">Notes de relevé</label>
+    <textarea id="inp-survey-note" rows="3" placeholder="Mesures relevées, photos prises, écarts constatés…">${esc(room.surveyNote||'')}</textarea></div>`;
+}
+function surveyItemHtml(it){
+  return `<div class="val-item survey-item${it.done?' chk':''}" data-sid="${it.id}">
+    <input type="checkbox" class="sv-check" data-sid="${it.id}" ${it.done?'checked':''}>
+    <input type="text" class="sv-lbl" data-sid="${it.id}" value="${esc(it.label)}" placeholder="Point à relever…">
+    <button class="btn-del" onclick="delSurvey('${it.id}')">×</button>
+  </div>`;
+}
+
+// E — plan de la pièce
+function planPanelHtml(room){
+  const has=room.plan&&room.plan.blobRef;
+  return `<div class="plan-panel" id="plan-panel">
+    <div class="plan-panel-hdr"><span class="fl" style="margin:0">🗺 Plan de la pièce</span>
+      ${has?`<span class="row"><button class="btn btn-ghost btn-sm" onclick="document.getElementById('plan-file').click()">Remplacer</button>
+        <button class="btn btn-ghost btn-sm" onclick="delRoomPlan()">Supprimer</button></span>`:''}
+    </div>
+    ${has?`<img id="plan-img" class="plan-img" src="" alt="Plan ${esc(room.name)}" onclick="openPlanLb()">`
+        :`<div class="drop-zone" id="plan-drop"><p>Glisse ici une capture du plan recentrée sur la pièce</p>
+            <p class="hint">ou parcours ci-dessous</p>
+            <button class="btn btn-ghost" style="margin-top:8px" onclick="document.getElementById('plan-file').click()">Parcourir…</button></div>`}
+    <input type="file" id="plan-file" accept="image/*" style="display:none">
+  </div>`;
 }
 
 function furnHtml(f){
@@ -892,6 +1099,7 @@ function sImg(){
   <div class="url-row">
     <input type="url" id="url-inp" placeholder="URL d'une image (https://…)">
     <button class="btn btn-ghost" onclick="addImgUrl()">Ajouter</button>
+    <button class="btn btn-ghost" onclick="openPin()" title="Trouver les bons mots-clés Pinterest">🔍 Mots-clés Pinterest</button>
   </div>
   <div class="img-groups" id="img-grid"></div>`;
 }
@@ -910,7 +1118,7 @@ function bindRoom(room){
   });
   // Champs texte principaux
   [['inp-usages','usages'],['inp-ambiance','ambiance'],['inp-constraints','constraints'],
-   ['inp-zones','zones'],['inp-notes','notes']].forEach(([id,key])=>{
+   ['inp-zones','zones'],['inp-notes','notes'],['inp-survey-note','surveyNote']].forEach(([id,key])=>{
     const el=document.getElementById(id);if(!el)return;
     el.addEventListener('input',()=>{state.rooms[rid][key]=el.value;save();renderSidebar();});
   });
@@ -986,6 +1194,8 @@ async function loadImgs(room){
   grid.querySelectorAll('.img-card').forEach(card=>{
     card.addEventListener('click',e=>{
       if(e.target.closest('button')||e.target.tagName==='INPUT'||e.target.closest('.img-tags-edit')) return;
+      // Reconstruit lbImgs depuis les images de la pièce (robuste même si le plan a réutilisé la lightbox)
+      lbImgs=room.images.map(im=>({src:imgUrlCache[im.blobRef]||im.source||'',caption:im.caption,source:im.source||''}));
       openLb(parseInt(card.dataset.idx));
     });
   });
@@ -1135,6 +1345,176 @@ document.getElementById('lb-next').addEventListener('click',()=>{lbIdx=(lbIdx+1)
 document.getElementById('lightbox').addEventListener('click',e=>{if(e.target===document.getElementById('lightbox'))closeLb();});
 
 // ============================================================
+// PLAN DE LA PIÈCE (E)
+// ============================================================
+
+function wirePlanPanel(){
+  const f=document.getElementById('plan-file');
+  if(f) f.addEventListener('change',()=>{if(f.files[0])setRoomPlan(f.files[0]);f.value='';});
+  const dz=document.getElementById('plan-drop');
+  if(dz){
+    dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+    dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+    dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');if(e.dataTransfer.files[0])setRoomPlan(e.dataTransfer.files[0]);});
+  }
+}
+async function setRoomPlan(file){
+  if(!file.type.startsWith('image/')){alert('Choisis un fichier image.');return;}
+  const blob=await resizeImg(file,2200);
+  const room=state.rooms[curRoom];
+  if(room.plan&&room.plan.blobRef) await purgeBlob(room.plan.blobRef);
+  const blobRef=uid();
+  try{await dbSet('images',blobRef,blob);}catch{alert("Impossible d'enregistrer le plan (quota IndexedDB ?)");return;}
+  room.plan={blobRef,addedAt:new Date().toISOString()};
+  save();refreshPlanPanel();
+}
+function delRoomPlan(){
+  if(!confirm('Supprimer le plan de cette pièce ?')) return;
+  const room=state.rooms[curRoom];
+  if(room.plan&&room.plan.blobRef) purgeBlob(room.plan.blobRef);
+  room.plan=null;save();refreshPlanPanel();
+}
+function refreshPlanPanel(){
+  const old=document.getElementById('plan-panel');if(!old)return;
+  const tmp=document.createElement('div');tmp.innerHTML=planPanelHtml(state.rooms[curRoom]);
+  old.replaceWith(tmp.firstElementChild);
+  wirePlanPanel();loadRoomPlan(state.rooms[curRoom]);
+}
+async function loadRoomPlan(room){
+  const el=document.getElementById('plan-img');if(!el||!room.plan||!room.plan.blobRef)return;
+  el.src=await blobUrl(room.plan.blobRef);
+}
+function openPlanLb(){
+  const el=document.getElementById('plan-img');if(!el||!el.src)return;
+  lbImgs=[{src:el.src,caption:'Plan — '+state.rooms[curRoom].name,source:''}];
+  openLb(0);
+}
+
+// ============================================================
+// PLAN GLOBAL (F)
+// ============================================================
+
+function renderPlanGlobal(){
+  const has=!!state.meta.planGlobalRef;
+  document.getElementById('mc').innerHTML=`
+    <div class="section-title">🗺 Plan global — E703</div>
+    <p class="text-sm" style="margin-bottom:16px">Importe ici le plan complet du logement pour le garder sous les yeux pendant la réflexion.</p>
+    ${has?`<div class="row" style="margin-bottom:12px">
+        <button class="btn btn-ghost" onclick="document.getElementById('pg-file').click()">Remplacer</button>
+        <button class="btn btn-ghost" onclick="delGlobalPlan()">Supprimer</button></div>
+      <img id="pg-img" class="plan-img plan-img-lg" src="" alt="Plan global E703" onclick="openGlobalLb()">`
+      :`<div class="drop-zone" id="pg-drop"><p>Glisse ici le plan complet (image)</p>
+          <p class="hint">ou parcours ci-dessous</p>
+          <button class="btn btn-ghost" style="margin-top:8px" onclick="document.getElementById('pg-file').click()">Parcourir…</button></div>`}
+    <input type="file" id="pg-file" accept="image/*" style="display:none">`;
+  wireGlobalPlan();if(has)loadGlobalPlan();
+}
+function wireGlobalPlan(){
+  const f=document.getElementById('pg-file');
+  if(f) f.addEventListener('change',()=>{if(f.files[0])setGlobalPlan(f.files[0]);f.value='';});
+  const dz=document.getElementById('pg-drop');
+  if(dz){
+    dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+    dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+    dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');if(e.dataTransfer.files[0])setGlobalPlan(e.dataTransfer.files[0]);});
+  }
+}
+async function setGlobalPlan(file){
+  if(!file.type.startsWith('image/')){alert('Choisis un fichier image.');return;}
+  const blob=await resizeImg(file,2400);
+  if(state.meta.planGlobalRef) await purgeBlob(state.meta.planGlobalRef);
+  const ref=uid();
+  try{await dbSet('images',ref,blob);}catch{alert("Impossible d'enregistrer le plan (quota IndexedDB ?)");return;}
+  state.meta.planGlobalRef=ref;save();renderPlanGlobal();
+}
+function delGlobalPlan(){
+  if(!confirm('Supprimer le plan global ?')) return;
+  if(state.meta.planGlobalRef) purgeBlob(state.meta.planGlobalRef);
+  state.meta.planGlobalRef=null;save();renderPlanGlobal();
+}
+async function loadGlobalPlan(){
+  const el=document.getElementById('pg-img');if(!el||!state.meta.planGlobalRef)return;
+  el.src=await blobUrl(state.meta.planGlobalRef);
+}
+function openGlobalLb(){
+  const el=document.getElementById('pg-img');if(!el||!el.src)return;
+  lbImgs=[{src:el.src,caption:'Plan global — E703',source:''}];
+  openLb(0);
+}
+
+// Helpers blobs partagés (cache d'object-URLs)
+async function blobUrl(ref){
+  if(imgUrlCache[ref]) return imgUrlCache[ref];
+  const blob=await dbGet('images',ref).catch(()=>null);
+  if(blob){const u=URL.createObjectURL(blob);imgUrlCache[ref]=u;return u;}
+  return '';
+}
+async function purgeBlob(ref){
+  await dbDel('images',ref).catch(()=>{});
+  if(imgUrlCache[ref]){URL.revokeObjectURL(imgUrlCache[ref]);delete imgUrlCache[ref];}
+}
+
+// ============================================================
+// ASSISTANT MOTS-CLÉS PINTEREST (G)
+// ============================================================
+
+function openPin(){
+  document.getElementById('pin-query').value=curRoom?state.rooms[curRoom].name.toLowerCase():'';
+  renderPinBanks();
+  document.getElementById('pin-modal').classList.add('open');
+  document.getElementById('pin-query').focus();
+}
+function closePin(){document.getElementById('pin-modal').classList.remove('open');}
+function renderPinBanks(){
+  const banks=[];
+  if(curRoom){
+    const amb=(state.rooms[curRoom].ambiance||'').trim();
+    if(amb){const words=amb.split(/[,;\n]/).map(s=>s.trim()).filter(Boolean);if(words.length)banks.push(['Depuis ton ambiance',words]);}
+    if(PIN_ELEMENTS[curRoom]) banks.push(['Éléments de '+state.rooms[curRoom].name,PIN_ELEMENTS[curRoom]]);
+  }
+  banks.push(['Style',PIN_BANKS.styles]);
+  banks.push(['Matériau',PIN_BANKS.materiaux]);
+  banks.push(['Couleur / teinte',PIN_BANKS.couleurs]);
+  banks.push(['Format / contrainte',PIN_BANKS.formats]);
+  const q=document.getElementById('pin-query').value.toLowerCase();
+  document.getElementById('pin-banks').innerHTML=banks.map(([title,words])=>`
+    <div class="pin-bank"><h4>${esc(title)}</h4><div class="pin-chips">
+      ${words.map(w=>`<button class="pin-chip${q.includes(w.toLowerCase())?' on':''}" data-term="${esc(w)}">${esc(w)}</button>`).join('')}
+    </div></div>`).join('');
+}
+document.getElementById('pin-banks')?.addEventListener('click',e=>{
+  const b=e.target.closest('.pin-chip');if(!b)return;
+  const term=b.dataset.term,inp=document.getElementById('pin-query');
+  if(inp.value.toLowerCase().includes(term.toLowerCase())){
+    inp.value=inp.value.replace(new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i'),'').replace(/\s+/g,' ').trim();
+  } else {
+    inp.value=(inp.value.trim()+' '+term).trim();
+  }
+  renderPinBanks();
+});
+document.getElementById('pin-query')?.addEventListener('input',renderPinBanks);
+document.getElementById('pin-close')?.addEventListener('click',closePin);
+document.getElementById('pin-modal')?.addEventListener('click',e=>{if(e.target.id==='pin-modal')closePin();});
+document.getElementById('pin-clear')?.addEventListener('click',()=>{document.getElementById('pin-query').value='';renderPinBanks();document.getElementById('pin-query').focus();});
+document.getElementById('pin-open')?.addEventListener('click',()=>{
+  const q=document.getElementById('pin-query').value.trim();if(!q)return;
+  window.open('https://www.pinterest.com/search/pins/?q='+encodeURIComponent(q),'_blank','noopener');
+});
+document.getElementById('pin-copy')?.addEventListener('click',()=>{
+  const q=document.getElementById('pin-query').value.trim();if(!q)return;
+  copyText(q);
+  const btn=document.getElementById('pin-copy');const old=btn.textContent;btn.textContent='Copié ✓';setTimeout(()=>btn.textContent=old,1200);
+});
+function copyText(t){
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).catch(()=>fallbackCopy(t));}
+  else fallbackCopy(t);
+}
+function fallbackCopy(t){
+  const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch{}document.body.removeChild(ta);
+}
+
+// ============================================================
 // MODALE D'AIDE (suggestions « ? »)
 // ============================================================
 
@@ -1184,18 +1564,14 @@ function cyclePrio(btn,nid){
 
 function addVar(){
   const room=state.rooms[curRoom];
-  const v={id:uid(),name:'Variante '+String.fromCharCode(65+room.variants.length),desc:'',pros:'',cons:'',chosen:false};
-  room.variants.push(v);
-  const d=document.createElement('div');d.innerHTML=varHtml(v);
-  document.getElementById('vars-list').appendChild(d.firstElementChild);
-  save();renderSidebar();
+  room.variants.push({id:uid(),name:'Variante '+String.fromCharCode(65+room.variants.length),desc:'',pros:'',cons:'',chosen:false,scores:{}});
+  save();renderStep4();renderSidebar();
 }
 
 function delVar(vid){
   if(!confirm('Supprimer cette variante ?')) return;
   state.rooms[curRoom].variants=state.rooms[curRoom].variants.filter(v=>v.id!==vid);
-  document.querySelector(`.var-card[data-vid="${vid}"]`)?.remove();
-  save();renderSidebar();
+  save();renderStep4();renderSidebar();
 }
 
 // ============================================================
@@ -1234,6 +1610,29 @@ function togVal(vid){
 }
 
 // ============================================================
+// RELEVÉ SUR SITE (C)
+// ============================================================
+
+function addSurvey(){
+  const it={id:uid(),label:'',done:false};
+  state.rooms[curRoom].survey.push(it);
+  const d=document.createElement('div');d.innerHTML=surveyItemHtml(it);
+  document.getElementById('survey-list').appendChild(d.firstElementChild);
+  save();refreshSurveyCount();
+}
+function delSurvey(sid){
+  if(!confirm('Supprimer ce point de relevé ?')) return;
+  state.rooms[curRoom].survey=state.rooms[curRoom].survey.filter(s=>s.id!==sid);
+  document.querySelector(`.survey-item[data-sid="${sid}"]`)?.remove();
+  save();refreshSurveyCount();
+}
+function refreshSurveyCount(){
+  const room=state.rooms[curRoom];if(!room)return;
+  const h=document.querySelector('#acc-survey .acc-hdr h3');
+  if(h) h.textContent=`Relevé sur site (${room.survey.filter(s=>s.done).length}/${room.survey.length})`;
+}
+
+// ============================================================
 // DÉLÉGATION — MISE À JOUR EN TEMPS RÉEL
 // ============================================================
 
@@ -1268,16 +1667,33 @@ document.addEventListener('input',e=>{
     if(e.target.classList.contains('f-notes')) f.notes=e.target.value;
     save();
   }
+  if(e.target.classList.contains('sv-lbl')){
+    const sid=e.target.dataset.sid;
+    const it=room.survey.find(s=>s.id===sid);if(it){it.label=e.target.value;save();}
+  }
 });
 
 document.addEventListener('change',e=>{
   if(!curRoom) return;
+  const room=state.rooms[curRoom];
   if(e.target.classList.contains('v-chosen')){
     const vid=e.target.closest('.var-card')?.dataset.vid;if(!vid)return;
-    const room=state.rooms[curRoom];
     room.variants.forEach(v=>{v.chosen=(v.id===vid&&e.target.checked);});
-    document.getElementById('vars-list').innerHTML=room.variants.map(v=>varHtml(v)).join('');
-    save();
+    renderStep4();save();
+  }
+  if(e.target.classList.contains('v-score')){
+    const vid=e.target.closest('.var-card')?.dataset.vid;
+    const v=room.variants.find(v=>v.id===vid);if(!v)return;
+    if(!v.scores) v.scores={};
+    v.scores[e.target.dataset.crit]=Number(e.target.value);
+    renderStep4();save();
+  }
+  if(e.target.classList.contains('sv-check')){
+    const sid=e.target.dataset.sid;
+    const it=room.survey.find(s=>s.id===sid);if(!it)return;
+    it.done=e.target.checked;
+    e.target.closest('.survey-item')?.classList.toggle('chk',it.done);
+    save();refreshSurveyCount();
   }
 });
 
@@ -1298,10 +1714,18 @@ function showDash(){
   renderSidebar();renderDash();
 }
 
+function showPlanGlobal(){
+  curView='planglobal';curRoom=null;
+  localStorage.removeItem('lastRoom');
+  renderSidebar();renderPlanGlobal();
+  document.getElementById('main').scrollTo(0,0);
+}
+
 document.getElementById('room-list').addEventListener('click',e=>{
   const ri=e.target.closest('.ri');if(ri) selRoom(ri.dataset.rid);
 });
 document.getElementById('btn-dash').addEventListener('click',showDash);
+document.getElementById('btn-plan-global').addEventListener('click',showPlanGlobal);
 
 // ============================================================
 // RECHERCHE GLOBALE
@@ -1413,6 +1837,19 @@ function exportMdAll(){
   dl('decisions-E703.md',md);ddClose();
 }
 
+// C — export du relevé sur site (toutes pièces)
+function exportSurvey(){
+  let md=`# Relevé sur site — E703\n\nÀ vérifier au laser le jour des clés (aucune cote de fabrication figée avant).\nExporté le ${new Date().toLocaleDateString('fr-FR')}.\n\n`;
+  roomsOrdered().forEach(r=>{
+    const items=r.survey||[];
+    md+=`## ${r.name}${r.area!=null?` (${r.area} m²)`:''}\n`;
+    items.forEach(it=>{md+=`- [${it.done?'x':' '}] ${it.label}\n`;});
+    if(r.surveyNote&&r.surveyNote.trim()) md+=`\n_${r.surveyNote.trim()}_\n`;
+    md+='\n';
+  });
+  dl('releve-site-E703.md',md);ddClose();
+}
+
 // ============================================================
 // BACKUP JSON
 // ============================================================
@@ -1427,6 +1864,17 @@ async function exportBackup(){
         if(blob) img.dataUrl=await blobToDataUrl(blob);
       }
     }
+    // plan de la pièce
+    const pl=backup.rooms[rid].plan;
+    if(pl&&pl.blobRef){
+      const blob=await dbGet('images',pl.blobRef).catch(()=>null);
+      if(blob) pl.dataUrl=await blobToDataUrl(blob);
+    }
+  }
+  // plan global
+  if(state.meta.planGlobalRef){
+    const blob=await dbGet('images',state.meta.planGlobalRef).catch(()=>null);
+    if(blob) backup.meta.planGlobalDataUrl=await blobToDataUrl(blob);
   }
   dl(`agencement-E703-backup-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify(backup,null,2),'application/json');
   setSI('saved');
@@ -1445,10 +1893,23 @@ async function importBackup(file){
         await dbSet('images',key,blob);delete img.dataUrl;
       }
     }
+    // plan de la pièce
+    const pl=data.rooms[rid].plan;
+    if(pl&&pl.dataUrl){
+      const blob=dataUrlToBlob(pl.dataUrl);
+      const key=pl.blobRef||uid();pl.blobRef=key;
+      await dbSet('images',key,blob);delete pl.dataUrl;
+    }
+  }
+  // plan global
+  if(data.meta&&data.meta.planGlobalDataUrl){
+    const blob=dataUrlToBlob(data.meta.planGlobalDataUrl);
+    const key=data.meta.planGlobalRef||uid();data.meta.planGlobalRef=key;
+    await dbSet('images',key,blob);delete data.meta.planGlobalDataUrl;
   }
   // Le cache d'object-URLs référence les anciens blobRefs : on le purge
   for(const k in imgUrlCache){URL.revokeObjectURL(imgUrlCache[k]);delete imgUrlCache[k];}
-  state=data;await dbSet('data','state',state);
+  state=migrate(data);await dbSet('data','state',state);
   showDash();setSI('saved');
 }
 
@@ -1491,7 +1952,7 @@ document.addEventListener('click',e=>{if(!e.target.closest('#dd-export'))ddClose
 
 document.addEventListener('keydown',e=>{
   const lb=document.getElementById('lightbox').classList.contains('open');
-  if(e.key==='Escape'){closeLb();closeHelp();document.getElementById('memo-panel').classList.remove('open');}
+  if(e.key==='Escape'){closeLb();closeHelp();closePin();document.getElementById('memo-panel').classList.remove('open');}
   if(lb&&e.key==='ArrowLeft'){lbIdx=(lbIdx-1+lbImgs.length)%lbImgs.length;showLb();}
   if(lb&&e.key==='ArrowRight'){lbIdx=(lbIdx+1)%lbImgs.length;showLb();}
 });
@@ -1519,7 +1980,7 @@ async function init(){
 
   await openDB();
   const saved=await dbGet('data','state');
-  state=saved||mkSeedState();
+  state=migrate(saved||mkSeedState());
   if(!saved) await dbSet('data','state',state);
 
   renderMemo();
