@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Agencement E703</title>
 <script async defer src="https://assets.pinterest.com/js/pinit.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer/dist/model-viewer.min.js"></script>
 <style>
 /* === Variables de thème === */
 :root {
@@ -1514,10 +1515,34 @@ function openPlanLb(){
 // PLAN GLOBAL (F)
 // ============================================================
 
+function mv3dFullscreen(){
+  const mv=document.getElementById('mv3d');
+  if(mv&&mv.requestFullscreen) mv.requestFullscreen();
+}
+
 function renderPlanGlobal(){
   const has=!!state.meta.planGlobalRef;
   document.getElementById('mc').innerHTML=`
     <div class="section-title">🗺 Plan global — E703</div>
+    <div class="plan-panel">
+      <div class="plan-panel-hdr">
+        <strong>Maquette 3D</strong>
+        <button class="btn btn-ghost btn-sm" onclick="mv3dFullscreen()">⛶ Plein écran</button>
+      </div>
+      <model-viewer id="mv3d"
+        src="model.glb"
+        camera-controls
+        touch-action="pan-y"
+        auto-rotate auto-rotate-delay="3000"
+        shadow-intensity="1"
+        ar ar-modes="webxr scene-viewer quick-look"
+        style="width:100%;height:60vh;background-color:var(--bg2);border-radius:8px">
+        <div slot="poster" class="text-sm" style="padding:24px">Chargement de la maquette…</div>
+        <div slot="error" class="text-sm" style="padding:24px">
+          Maquette 3D non disponible. Convertis le modèle SketchUp en <code>model.glb</code> (voir SPEC).
+        </div>
+      </model-viewer>
+    </div>
     <p class="text-sm" style="margin-bottom:16px">Importe ici le plan complet du logement pour le garder sous les yeux pendant la réflexion.</p>
     ${has?`<div class="row" style="margin-bottom:12px">
         <button class="btn btn-ghost" onclick="document.getElementById('pg-file').click()">Remplacer</button>
