@@ -805,6 +805,8 @@ function mkSeedState(){
 function migrate(s){
   if(!s.meta) s.meta={appName:'Agencement E703',version:1,lastModified:new Date().toISOString()};
   if(!('planGlobalRef' in s.meta)) s.meta.planGlobalRef=null;
+  if(!('model3dRef' in s.meta)) s.meta.model3dRef=null;
+  if(!('model3dHidden' in s.meta)) s.meta.model3dHidden=false;
   for(const rid in s.rooms){
     const r=s.rooms[rid];
     if(!Array.isArray(r.survey)) r.survey=mkSurvey();
@@ -1587,41 +1589,99 @@ function mv3dFullscreen(){
 
 function renderPlanGlobal(){
   const has=!!state.meta.planGlobalRef;
+  const hidden=!!state.meta.model3dHidden;
+  // src initial : blob si custom, sinon asset statique
+  // src vide si blob custom (loadModel3d() le remplace) ; sinon asset statique
+  const mv3dSrc=state.meta.model3dRef?'""':'"model.glb"';
   document.getElementById('mc').innerHTML=`
     <div class="section-title">🗺 Plan global — E703</div>
+
+    <!-- Plan 2D -->
     <div class="plan-panel">
       <div class="plan-panel-hdr">
-        <strong>Maquette 3D</strong>
-        <button class="btn btn-ghost btn-sm" onclick="mv3dFullscreen()">⛶ Plein écran</button>
+        <span class="fl" style="margin:0">🗺 Plan 2D</span>
+        ${has?`<span class="row" style="gap:6px">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('pg-file').click()">Remplacer</button>
+          <button class="btn btn-ghost btn-sm" onclick="delGlobalPlan()">Supprimer</button></span>`:''}
       </div>
-      <model-viewer id="mv3d"
-        src="model.glb"
-        camera-controls
-        touch-action="pan-y"
-        auto-rotate auto-rotate-delay="3000"
-        shadow-intensity="1"
-        ar ar-modes="webxr scene-viewer quick-look"
-        style="width:100%;height:60vh;background-color:var(--bg2);border-radius:8px">
-        <div slot="poster" class="text-sm" style="padding:24px">Chargement de la maquette…</div>
-        <div slot="error" class="text-sm" style="padding:24px">
-          Maquette 3D non disponible. Convertis le modèle SketchUp en <code>model.glb</code> (voir SPEC).
-        </div>
-      </model-viewer>
+      ${has
+        ?`<img id="pg-img" class="plan-img plan-img-lg" src="" alt="Plan global E703" onclick="openGlobalLb()">`
+        :`<div class="drop-zone" id="pg-drop"><p>Glisse ici le plan complet (image)</p>
+            <p class="hint">ou parcours ci-dessous</p>
+            <button class="btn btn-ghost" style="margin-top:8px" onclick="document.getElementById('pg-file').click()">Parcourir…</button></div>`}
+      <input type="file" id="pg-file" accept="image/*" style="display:none">
     </div>
-    <p class="text-sm" style="margin-bottom:16px">Importe ici le plan complet du logement pour le garder sous les yeux pendant la réflexion.</p>
-    ${has?`<div class="row" style="margin-bottom:12px">
-        <button class="btn btn-ghost" onclick="document.getElementById('pg-file').click()">Remplacer</button>
-        <button class="btn btn-ghost" onclick="delGlobalPlan()">Supprimer</button></div>
-      <img id="pg-img" class="plan-img plan-img-lg" src="" alt="Plan global E703" onclick="openGlobalLb()">`
-      :`<div class="drop-zone" id="pg-drop"><p>Glisse ici le plan complet (image)</p>
-          <p class="hint">ou parcours ci-dessous</p>
-          <button class="btn btn-ghost" style="margin-top:8px" onclick="document.getElementById('pg-file').click()">Parcourir…</button></div>`}
-    <input type="file" id="pg-file" accept="image/*" style="display:none">`;
-  wireGlobalPlan();if(has)loadGlobalPlan();
+
+    <!-- Maquette 3D -->
+    ${hidden
+      ?`<div class="plan-panel" style="display:flex;align-items:center;gap:12px">
+          <span class="text-sm" style="flex:1">Maquette 3D masquée.</span>
+          <button class="btn btn-ghost btn-sm" onclick="showModel3d()">Afficher la maquette 3D</button>
+        </div>`
+      :`<div class="plan-panel">
+          <div class="plan-panel-hdr">
+            <strong>Maquette 3D</strong>
+            <span class="row" style="gap:6px">
+              <button class="btn btn-ghost btn-sm" onclick="document.getElementById('glb-file').click()">Réimporter…</button>
+              <button class="btn btn-ghost btn-sm" onclick="mv3dFullscreen()">⛶ Plein écran</button>
+              <button class="btn btn-ghost btn-sm" onclick="delModel3d()">Supprimer</button>
+            </span>
+          </div>
+          <model-viewer id="mv3d"
+            src=${mv3dSrc}
+            camera-controls touch-action="pan-y"
+            auto-rotate auto-rotate-delay="3000"
+            shadow-intensity="1"
+            ar ar-modes="webxr scene-viewer quick-look"
+            style="width:100%;height:60vh;background-color:var(--bg2);border-radius:8px">
+            <div slot="poster" class="text-sm" style="padding:24px">Chargement de la maquette…</div>
+            <div slot="error" class="text-sm" style="padding:24px">
+              Maquette 3D non disponible — importe un fichier <code>.glb</code> via « Réimporter ».
+            </div>
+          </model-viewer>
+          <input type="file" id="glb-file" accept=".glb,.gltf" style="display:none">
+        </div>`}`;
+  wireGlobalPlan();
+  if(has) loadGlobalPlan();
+  if(!hidden) loadModel3d();
+}
+
+async function setModel3d(file){
+  if(!file.name.match(/\.(glb|gltf)$/i)){alert('Choisis un fichier .glb ou .gltf.');return;}
+  if(state.meta.model3dRef) await purgeBlob(state.meta.model3dRef);
+  const ref=uid();
+  try{await dbSet('images',ref,file);}catch(e){alert('Impossible de stocker le modèle : '+(e?.message||e));return;}
+  state.meta.model3dRef=ref;
+  state.meta.model3dHidden=false;
+  save();renderPlanGlobal();
+}
+
+function delModel3d(){
+  if(!confirm('Masquer la maquette 3D ?')) return;
+  if(state.meta.model3dRef) purgeBlob(state.meta.model3dRef);
+  state.meta.model3dRef=null;
+  state.meta.model3dHidden=true;
+  save();renderPlanGlobal();
+}
+
+function showModel3d(){
+  state.meta.model3dHidden=false;
+  save();renderPlanGlobal();
+}
+
+async function loadModel3d(){
+  const mv=document.getElementById('mv3d');if(!mv)return;
+  if(state.meta.model3dRef){
+    const url=await blobUrl(state.meta.model3dRef).catch(()=>null);
+    if(url) mv.src=url;
+  }
+  // sinon src="model.glb" déjà posé dans le template
 }
 function wireGlobalPlan(){
   const f=document.getElementById('pg-file');
   if(f) f.addEventListener('change',()=>{if(f.files[0])setGlobalPlan(f.files[0]);f.value='';});
+  const gf=document.getElementById('glb-file');
+  if(gf) gf.addEventListener('change',()=>{if(gf.files[0])setModel3d(gf.files[0]);gf.value='';});
   const dz=document.getElementById('pg-drop');
   if(dz){
     dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
