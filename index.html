@@ -1240,8 +1240,8 @@ function renderPinBoard(url){
   const embedSrc=`https://assets.pinterest.com/ext/embed.html?grid=${encodeURIComponent(username)}/${encodeURIComponent(board)}/&src=oembed`;
   const fallback=`<p class="text-sm mt2"><a href="${esc(canonical)}" target="_blank" rel="noopener">Ouvrir le tableau sur Pinterest ↗</a></p>`;
   box.innerHTML=`<iframe src="${esc(embedSrc)}"
-    style="width:100%;height:650px;border:none;border-radius:8px;display:block"
-    scrolling="no" allowfullscreen loading="lazy"></iframe>${fallback}`;
+    style="width:100%;height:650px;border:none;border-radius:8px;display:block;-webkit-overflow-scrolling:touch"
+    allowfullscreen allow="storage-access"></iframe>${fallback}`;
 }
 
 function bindRoom(room){
