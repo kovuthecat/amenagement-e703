@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Agencement E703</title>
-<script async defer src="https://assets.pinterest.com/js/pinit.js"></script>
+<!-- pinit.js injecté dynamiquement par buildPinWidget() pour garantir le scan DOM après injection SPA -->
 <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer/dist/model-viewer.min.js"></script>
 <style>
 /* === Variables de thème === */
@@ -1223,11 +1223,13 @@ function renderPinBoard(url){
 }
 
 function buildPinWidget(){
-  if(window.PinUtils&&PinUtils.build){ PinUtils.build(); return; }
-  let n=0; const t=setInterval(()=>{
-    if(window.PinUtils&&PinUtils.build){ clearInterval(t); PinUtils.build(); }
-    else if(++n>20) clearInterval(t);
-  },250);
+  // SPA : injecter un nouveau <script> force pinit.js à scanner le DOM frais
+  document.getElementById('pinit-dyn')?.remove();
+  const s=document.createElement('script');
+  s.id='pinit-dyn';
+  s.async=true;
+  s.src='https://assets.pinterest.com/js/pinit.js';
+  document.body.appendChild(s);
 }
 
 function bindRoom(room){
