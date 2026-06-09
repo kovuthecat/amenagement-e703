@@ -1203,7 +1203,12 @@ function renderPinBoard(url){
   if(!raw){ return; }
   // URL propre : on garde seulement origine + chemin (sans query params ni hash)
   let u=raw;
-  try{ const p=new URL(raw); u=p.origin+p.pathname; }catch(_){}
+  try{
+    const p=new URL(raw);
+    // pinit.js exige www.pinterest.com — on normalise les domaines localisés (fr., co.uk…)
+    const host=p.hostname.replace(/^[a-z]{2,5}\.pinterest\./,'www.pinterest.');
+    u='https://'+host+p.pathname;
+  }catch(_){}
   if(!/^https?:\/\/(.*\.)?pinterest\.[a-z.]+\/[^/?#]+\/[^/?#]+/i.test(u)){
     box.innerHTML='<p class="text-sm">URL invalide. Utilise l\'URL d\'un tableau : <code>pinterest.fr/utilisateur/nom-du-tableau/</code></p>'; return;
   }
