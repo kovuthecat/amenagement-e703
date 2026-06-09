@@ -1,0 +1,10 @@
+# Ne déployer QUE les fichiers web de l'app.
+# Tout est ignoré par défaut, puis on ré-inclut explicitement.
+# Protège la maquette .skp, le PDF du plan (adresse), les DXF et les docs de contexte.
+*
+!index.html
+!manifest.json
+!robots.txt
+!icon-180.png
+!icon-192.png
+!icon-512.png
