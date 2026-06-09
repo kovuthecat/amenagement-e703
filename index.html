@@ -216,6 +216,21 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent)}
 .plan-img-lg{max-height:70vh}
 .btn-sm{padding:3px 8px;font-size:12px}
 
+/* F2 — panneau haut pièce (plan + Pinterest côte à côte) */
+.room-top-panels{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.room-top-panels .plan-panel{flex:1;min-width:0;margin-bottom:0}
+.pin-panel{flex:1;min-width:0;border:1px solid var(--border);border-radius:10px;background:var(--bg2);padding:12px}
+.pin-panel-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-weight:600;font-size:14px}
+.pin-panel input[type=url]{width:100%;box-sizing:border-box;margin-bottom:6px}
+.pin-panel iframe{border-radius:6px;display:block;width:100%}
+@media(max-width:640px){.room-top-panels{flex-direction:column}}
+
+/* F3 — drag & drop accordéons */
+.acc-drag-handle{cursor:grab;padding:0 6px 0 0;color:var(--text3);font-size:18px;line-height:1;user-select:none;flex-shrink:0}
+.acc-drag-handle:active{cursor:grabbing}
+.acc.drag-over{outline:2px dashed var(--accent);outline-offset:2px}
+#acc-container{display:flex;flex-direction:column;gap:0}
+
 /* G — assistant Pinterest */
 #pin-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1100;display:none;align-items:center;justify-content:center;padding:24px}
 #pin-modal.open{display:flex}
@@ -762,6 +777,8 @@ let saveTid = null;
 let lbImgs = [];  // [{src,caption,source}] pour la lightbox
 let lbIdx = 0;
 
+const ACC_DEFAULT_ORDER=['acc-s1','acc-s2','acc-s3','acc-s4','acc-s5','acc-s6','acc-q','acc-notes','acc-survey','acc-img'];
+
 function mkSurvey(){return SURVEY_SEED.map(label=>({id:uid(),label,done:false}));}
 
 function mkRoom(r){
@@ -772,7 +789,7 @@ function mkRoom(r){
     usages:'',needs:[],ambiance:'',constraints:'',zones:'',
     variants:[],furniture:[],validation,answers,notes:'',images:[],
     survey:mkSurvey(),surveyNote:'',plan:null,
-    pinterestBoard:''};
+    pinterestBoard:'',accOrder:[...ACC_DEFAULT_ORDER]};
 }
 
 function mkSeedState(){
@@ -793,6 +810,7 @@ function migrate(s){
     (r.variants||[]).forEach(v=>{ if(!v.scores) v.scores={}; });
     (r.images||[]).forEach(im=>{ if(!Array.isArray(im.tags)) im.tags=[]; });
     if(typeof r.pinterestBoard!=='string') r.pinterestBoard='';
+    if(!Array.isArray(r.accOrder)) r.accOrder=[...ACC_DEFAULT_ORDER];
   }
   return s;
 }
@@ -938,6 +956,43 @@ function renderRoom(rid){
   const p=calcPct(room);
   const qs=SEED_QUESTIONS[rid]||[];
   const av=room.area!=null?room.area:'';
+  const survDone=(room.survey||[]).filter(s=>s.done).length;
+  const survTotal=(room.survey||[]).length;
+  const accMap={
+    'acc-s1': acc(1,'Usages &amp; besoins',s1(room)),
+    'acc-s2': acc(2,'Contraintes',s2(room),'constraints'),
+    'acc-s3': acc(3,'Zones &amp; circulation',s3(room),'zones'),
+    'acc-s4': acc(4,'Implantation — variantes',s4(room),'variants'),
+    'acc-s5': acc(5,'Mobilier sur mesure',s5(room),'furniture'),
+    'acc-s6': acc(6,'Validation',s6(room),'validation'),
+    'acc-q':`<div class="acc open" id="acc-q" data-acc="acc-q" draggable="true">
+      <div class="acc-hdr" onclick="togAcc('acc-q')">
+        <span class="acc-drag-handle" onclick="event.stopPropagation()" title="Glisser pour déplacer">⠿</span>
+        <div class="step-num" style="background:var(--text3)">?</div>
+        <h3>Questions de la fiche</h3>${helpBtn('questions')}<span class="acc-arrow">▼</span>
+      </div><div class="acc-body">${sQ(room,qs)}</div></div>`,
+    'acc-notes':`<div class="acc" id="acc-notes" data-acc="acc-notes" draggable="true">
+      <div class="acc-hdr" onclick="togAcc('acc-notes')">
+        <span class="acc-drag-handle" onclick="event.stopPropagation()" title="Glisser pour déplacer">⠿</span>
+        <div class="step-num" style="background:var(--text3)">📝</div>
+        <h3>Notes / décisions</h3>${helpBtn('notes')}<span class="acc-arrow">▼</span>
+      </div><div class="acc-body"><textarea id="inp-notes" rows="5" placeholder="Décisions, idées, références…">${esc(room.notes)}</textarea></div></div>`,
+    'acc-survey':`<div class="acc" id="acc-survey" data-acc="acc-survey" draggable="true">
+      <div class="acc-hdr" onclick="togAcc('acc-survey')">
+        <span class="acc-drag-handle" onclick="event.stopPropagation()" title="Glisser pour déplacer">⠿</span>
+        <div class="step-num" style="background:var(--text3)">🔎</div>
+        <h3>Relevé sur site (${survDone}/${survTotal})</h3><span class="acc-arrow">▼</span>
+      </div><div class="acc-body">${sSurvey(room)}</div></div>`,
+    'acc-img':`<div class="acc open" id="acc-img" data-acc="acc-img" draggable="true">
+      <div class="acc-hdr" onclick="togAcc('acc-img')">
+        <span class="acc-drag-handle" onclick="event.stopPropagation()" title="Glisser pour déplacer">⠿</span>
+        <div class="step-num" style="background:var(--text3)">🖼</div>
+        <h3>Visuels d'inspiration (${(room.images||[]).length})</h3>${helpBtn('images')}<span class="acc-arrow">▼</span>
+      </div><div class="acc-body">${sImg()}</div></div>`,
+  };
+  const order=(room.accOrder||[...ACC_DEFAULT_ORDER]).filter(id=>accMap[id]);
+  // ajouter les IDs manquants (migration partielle)
+  ACC_DEFAULT_ORDER.forEach(id=>{if(!order.includes(id))order.push(id);});
   document.getElementById('mc').innerHTML=`
   <div class="room-hdr">
     <div class="room-hdr-info">
@@ -950,67 +1005,31 @@ function renderRoom(rid){
     </div>
     <button class="btn btn-ghost" onclick="exportMdRoom()">📄 Exporter cette pièce</button>
   </div>
-  ${planPanelHtml(room)}
-  ${acc(1,'Usages &amp; besoins',s1(room))}
-  ${acc(2,'Contraintes',s2(room),'constraints')}
-  ${acc(3,'Zones &amp; circulation',s3(room),'zones')}
-  ${acc(4,'Implantation — variantes',s4(room),'variants')}
-  ${acc(5,'Mobilier sur mesure',s5(room),'furniture')}
-  ${acc(6,'Validation',s6(room),'validation')}
-  <div class="acc open" id="acc-q">
-    <div class="acc-hdr" onclick="togAcc('acc-q')">
-      <div class="step-num" style="background:var(--text3)">?</div>
-      <h3>Questions de la fiche</h3>${helpBtn('questions')}<span class="acc-arrow">▼</span>
-    </div>
-    <div class="acc-body">${sQ(room,qs)}</div>
+  <div class="room-top-panels">
+    ${planPanelHtml(room)}
+    ${pinPanelHtml(room)}
   </div>
-  <div class="acc" id="acc-notes">
-    <div class="acc-hdr" onclick="togAcc('acc-notes')">
-      <div class="step-num" style="background:var(--text3)">📝</div>
-      <h3>Notes / décisions</h3>${helpBtn('notes')}<span class="acc-arrow">▼</span>
-    </div>
-    <div class="acc-body">
-      <textarea id="inp-notes" rows="5" placeholder="Décisions, idées, références…">${esc(room.notes)}</textarea>
-    </div>
-  </div>
-  <div class="acc" id="acc-survey">
-    <div class="acc-hdr" onclick="togAcc('acc-survey')">
-      <div class="step-num" style="background:var(--text3)">🔎</div>
-      <h3>Relevé sur site (${(room.survey||[]).filter(s=>s.done).length}/${(room.survey||[]).length})</h3><span class="acc-arrow">▼</span>
-    </div>
-    <div class="acc-body">${sSurvey(room)}</div>
-  </div>
-  <div class="acc open" id="acc-img">
-    <div class="acc-hdr" onclick="togAcc('acc-img')">
-      <div class="step-num" style="background:var(--text3)">🖼</div>
-      <h3>Visuels d'inspiration (${(room.images||[]).length})</h3>${helpBtn('images')}<span class="acc-arrow">▼</span>
-    </div>
-    <div class="acc-body">${sImg()}</div>
-  </div>
-  <div class="acc" id="acc-pinterest">
-    <div class="acc-hdr" onclick="togAcc('acc-pinterest')">
-      <div class="step-num" style="background:var(--text3)">📌</div>
-      <h3>Tableau Pinterest</h3><span class="acc-arrow">▼</span>
-    </div>
-    <div class="acc-body">
-      <div class="fg">
-        <label class="fl">URL du tableau (public)</label>
-        <input type="url" id="inp-pinterest" placeholder="https://www.pinterest.com/utilisateur/mon-tableau/"
-               value="${esc(room.pinterestBoard||'')}">
-        <p class="text-sm mt2">Le tableau doit être <strong>public</strong>. Colle l'URL puis valide (Entrée).</p>
-      </div>
-      <div id="pin-board-embed"></div>
-    </div>
-  </div>`;
+  <div id="acc-container">${order.map(id=>accMap[id]).join('')}</div>`;
   bindRoom(room);
   loadImgs(room);
   renderPinBoard(room.pinterestBoard);
   wirePlanPanel();loadRoomPlan(room);
 }
 
+function pinPanelHtml(room){
+  return `<div class="pin-panel">
+    <div class="pin-panel-hdr">📌 Tableau Pinterest</div>
+    <input type="url" id="inp-pinterest" placeholder="https://www.pinterest.com/utilisateur/tableau/"
+           value="${esc(room.pinterestBoard||'')}">
+    <p class="text-sm" style="margin-bottom:6px">Tableau <strong>public</strong> requis. Valide avec Entrée.</p>
+    <div id="pin-board-embed"></div>
+  </div>`;
+}
+
 function acc(n,title,body,helpId){
-  return `<div class="acc" id="acc-s${n}">
+  return `<div class="acc" id="acc-s${n}" data-acc="acc-s${n}" draggable="true">
     <div class="acc-hdr" onclick="togAcc('acc-s${n}')">
+      <span class="acc-drag-handle" onclick="event.stopPropagation()" title="Glisser pour déplacer">⠿</span>
       <div class="step-num">${n}</div><h3>${title}</h3>${helpId?helpBtn(helpId):''}<span class="acc-arrow">▼</span>
     </div>
     <div class="acc-body">${body}</div>
@@ -1258,6 +1277,45 @@ function bindRoom(room){
     pin.addEventListener('change',apply);
     pin.addEventListener('keydown',e=>{ if(e.key==='Enter'){ pin.blur(); }});
   }
+  // Drag & drop accordéons
+  initAccDrag(rid);
+}
+
+function initAccDrag(rid){
+  const container=document.getElementById('acc-container');
+  if(!container) return;
+  let dragId=null;
+  container.querySelectorAll('.acc[draggable]').forEach(el=>{
+    el.addEventListener('dragstart',e=>{
+      dragId=el.dataset.acc;
+      e.dataTransfer.effectAllowed='move';
+      setTimeout(()=>el.classList.add('dragging'),0);
+    });
+    el.addEventListener('dragend',()=>{
+      el.classList.remove('dragging');
+      container.querySelectorAll('.acc').forEach(a=>a.classList.remove('drag-over'));
+    });
+    el.addEventListener('dragover',e=>{
+      e.preventDefault();
+      e.dataTransfer.dropEffect='move';
+      container.querySelectorAll('.acc').forEach(a=>a.classList.remove('drag-over'));
+      el.classList.add('drag-over');
+    });
+    el.addEventListener('dragleave',()=>el.classList.remove('drag-over'));
+    el.addEventListener('drop',e=>{
+      e.preventDefault();
+      el.classList.remove('drag-over');
+      if(!dragId||dragId===el.dataset.acc) return;
+      const order=state.rooms[rid].accOrder||[...ACC_DEFAULT_ORDER];
+      const from=order.indexOf(dragId);
+      const to=order.indexOf(el.dataset.acc);
+      if(from<0||to<0) return;
+      order.splice(to,0,order.splice(from,1)[0]);
+      state.rooms[rid].accOrder=order;
+      save();
+      renderRoom(rid);
+    });
+  });
 }
 
 // ============================================================
