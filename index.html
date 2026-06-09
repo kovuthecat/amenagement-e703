@@ -1201,8 +1201,8 @@ function renderPinBoard(url){
   box.innerHTML='';
   const u=(url||'').trim();
   if(!u){ return; }
-  if(!/^https?:\/\/(.*\.)?pinterest\.[a-z.]+\//i.test(u)){
-    box.innerHTML='<p class="text-sm">URL Pinterest invalide.</p>'; return;
+  if(!/^https?:\/\/(.*\.)?pinterest\.[a-z.]+\/[^/?#]+\/[^/?#]+/i.test(u)){
+    box.innerHTML='<p class="text-sm">URL invalide. Utilise l\'URL d\'un tableau : <code>pinterest.fr/utilisateur/nom-du-tableau/</code></p>'; return;
   }
   const fallback=`<p class="text-sm mt2"><a href="${esc(u)}" target="_blank" rel="noopener">Ouvrir le tableau sur Pinterest ↗</a></p>`;
   const w=Math.max(236,Math.min(box.clientWidth||400,740));
