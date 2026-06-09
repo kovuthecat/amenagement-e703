@@ -1199,8 +1199,11 @@ function renderPinBoard(url){
   const box=document.getElementById('pin-board-embed');
   if(!box) return;
   box.innerHTML='';
-  const u=(url||'').trim();
-  if(!u){ return; }
+  const raw=(url||'').trim();
+  if(!raw){ return; }
+  // URL propre : on garde seulement origine + chemin (sans query params ni hash)
+  let u=raw;
+  try{ const p=new URL(raw); u=p.origin+p.pathname; }catch(_){}
   if(!/^https?:\/\/(.*\.)?pinterest\.[a-z.]+\/[^/?#]+\/[^/?#]+/i.test(u)){
     box.innerHTML='<p class="text-sm">URL invalide. Utilise l\'URL d\'un tableau : <code>pinterest.fr/utilisateur/nom-du-tableau/</code></p>'; return;
   }
