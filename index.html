@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Agencement E703</title>
+<script async defer src="https://assets.pinterest.com/js/pinit.js"></script>
 <style>
 /* === Variables de thème === */
 :root {
@@ -770,7 +771,8 @@ function mkRoom(r){
   return {id:r.id,name:r.name,area:r.area,order:r.order,
     usages:'',needs:[],ambiance:'',constraints:'',zones:'',
     variants:[],furniture:[],validation,answers,notes:'',images:[],
-    survey:mkSurvey(),surveyNote:'',plan:null};
+    survey:mkSurvey(),surveyNote:'',plan:null,
+    pinterestBoard:''};
 }
 
 function mkSeedState(){
@@ -790,6 +792,7 @@ function migrate(s){
     if(!('plan' in r)) r.plan=null;
     (r.variants||[]).forEach(v=>{ if(!v.scores) v.scores={}; });
     (r.images||[]).forEach(im=>{ if(!Array.isArray(im.tags)) im.tags=[]; });
+    if(typeof r.pinterestBoard!=='string') r.pinterestBoard='';
   }
   return s;
 }
@@ -983,9 +986,25 @@ function renderRoom(rid){
       <h3>Visuels d'inspiration (${(room.images||[]).length})</h3>${helpBtn('images')}<span class="acc-arrow">▼</span>
     </div>
     <div class="acc-body">${sImg()}</div>
+  </div>
+  <div class="acc" id="acc-pinterest">
+    <div class="acc-hdr" onclick="togAcc('acc-pinterest')">
+      <div class="step-num" style="background:var(--text3)">📌</div>
+      <h3>Tableau Pinterest</h3><span class="acc-arrow">▼</span>
+    </div>
+    <div class="acc-body">
+      <div class="fg">
+        <label class="fl">URL du tableau (public)</label>
+        <input type="url" id="inp-pinterest" placeholder="https://www.pinterest.com/utilisateur/mon-tableau/"
+               value="${esc(room.pinterestBoard||'')}">
+        <p class="text-sm mt2">Le tableau doit être <strong>public</strong>. Colle l'URL puis valide (Entrée).</p>
+      </div>
+      <div id="pin-board-embed"></div>
+    </div>
   </div>`;
   bindRoom(room);
   loadImgs(room);
+  renderPinBoard(room.pinterestBoard);
   wirePlanPanel();loadRoomPlan(room);
 }
 
@@ -1175,6 +1194,33 @@ function sImg(){
 // LIAISONS ÉVÉNEMENTS VUE PIÈCE
 // ============================================================
 
+function renderPinBoard(url){
+  const box=document.getElementById('pin-board-embed');
+  if(!box) return;
+  box.innerHTML='';
+  const u=(url||'').trim();
+  if(!u){ return; }
+  if(!/^https?:\/\/(.*\.)?pinterest\.[a-z.]+\//i.test(u)){
+    box.innerHTML='<p class="text-sm">URL Pinterest invalide.</p>'; return;
+  }
+  const fallback=`<p class="text-sm mt2"><a href="${esc(u)}" target="_blank" rel="noopener">Ouvrir le tableau sur Pinterest ↗</a></p>`;
+  const w=Math.max(236,Math.min(box.clientWidth||400,740));
+  box.innerHTML=`<a data-pin-do="embedBoard"
+       data-pin-board-width="${w}"
+       data-pin-scale-height="320"
+       data-pin-scale-width="115"
+       href="${esc(u)}"></a>${fallback}`;
+  buildPinWidget();
+}
+
+function buildPinWidget(){
+  if(window.PinUtils&&PinUtils.build){ PinUtils.build(); return; }
+  let n=0; const t=setInterval(()=>{
+    if(window.PinUtils&&PinUtils.build){ clearInterval(t); PinUtils.build(); }
+    else if(++n>20) clearInterval(t);
+  },250);
+}
+
 function bindRoom(room){
   const rid=room.id;
   // Surface
@@ -1206,6 +1252,13 @@ function bindRoom(room){
       state.rooms[rid].answers[qi]=el.value;save();
     });
   });
+  // Tableau Pinterest
+  const pin=document.getElementById('inp-pinterest');
+  if(pin){
+    const apply=()=>{ state.rooms[rid].pinterestBoard=pin.value.trim(); save(); renderPinBoard(pin.value); };
+    pin.addEventListener('change',apply);
+    pin.addEventListener('keydown',e=>{ if(e.key==='Enter'){ pin.blur(); }});
+  }
 }
 
 // ============================================================

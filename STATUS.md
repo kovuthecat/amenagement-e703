@@ -2,7 +2,7 @@
 
 État du projet à un instant T. À mettre à jour en fin de session importante.
 
-> **Dernière mise à jour :** 2026-06-07
+> **Dernière mise à jour :** 2026-06-09
 
 ## Phase actuelle
 
@@ -30,7 +30,8 @@ avant tout travail d'agencement.
 - Contraintes techniques (eau, élec, gaine, radiateurs) → voir `CONTRAINTES.md`.
 - Zoning / circulation.
 - Conception mobilier.
-- Saisie des données dans `agencement.html` (outil disponible, à remplir pièce par pièce).
+- Saisie des données dans `index.html` (outil disponible, à remplir pièce par pièce).
+- **Section « Tableau Pinterest »** (T1.1 + T1.2 + T1.3 — 2026-06-09) : accordéon par pièce, `pinit.js`, `renderPinBoard`, fallback lien, migration état.
 
 ## Prochaines étapes immédiates
 
