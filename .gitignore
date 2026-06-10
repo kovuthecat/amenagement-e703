@@ -1,4 +1,28 @@
 Thumbs.db
 .DS_Store
 desktop.ini
+
+# Development
 .vercel
+.vercelignore
+node_modules/
+dist/
+build/
+
+# SketchUp
+*.skb
+*.backup*
+
+# Temporary files
+*.tmp
+*.temp
+~*
+
+# OS
+*.swp
+*.swo
+*~
+
+# Build artifacts
+3d/Plan\ 3D.obj
+*.glb.backup
